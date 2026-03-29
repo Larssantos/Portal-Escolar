@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Escolar Completo</title>
+    <style>
+        :root { --azul: #1e3a8a; --azul-claro: #f1f5f9; --texto: #334155; --sucesso: #dcfce7; --verde-escuro: #166534; }
+        
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; 
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            box-sizing: border-box; 
+            padding: 40px 20px;
+            /* FUNDO: PREENCHIMENTO TOTAL E MÁXIMA NITIDEZ */
+            background-image: url('unnamed.jpg');
+            background-size: cover; /* Preenche toda a tela (amplo) */
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            image-rendering: -webkit-optimize-contrast; /* Força nitidez */
+            image-rendering: crisp-edges;
+        }
+
+        #toast-sucesso { display: none; position: fixed; top: 20px; right: 20px; background: var(--sucesso); color: var(--verde-escuro); padding: 15px 25px; border-radius: 10px; border-left: 6px solid #22c55e; box-shadow: 0 5px 15px rgba(0,0,0,0.1); z-index: 1000; font-weight: bold; }
+
+        /* TELA DE LOGIN - MODELO PRESERVADO COM TRANSPARÊNCIA */
+        #tela-login { 
+            background: rgba(255, 255, 255, 0.95); /* Leve transparência para ver o fundo */
+            padding: 45px; 
+            border-radius: 20px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4); 
+            width: 100%; 
+            max-width: 400px; 
+            text-align: center; 
+            border-top: 8px solid var(--azul); 
+        }
+        .input-group { margin-bottom: 20px; text-align: left; }
+        .input-group label { display: block; font-size: 15px; margin-bottom: 8px; color: var(--texto); font-weight: bold; }
+        .input-group input { width: 100%; padding: 15px; border: 1px solid #cbd5e1; border-radius: 10px; box-sizing: border-box; font-size: 1rem; }
+
+        /* PORTAL DE CONTEÚDO - MODELO PRESERVADO COM TRANSPARÊNCIA */
+        #portal-conteudo { 
+            display: none; 
+            width: 100%; 
+            max-width: 800px; 
+            background: rgba(255, 255, 255, 0.9); /* Transparência "vidro" para ver o fundo center */
+            border-radius: 25px; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); 
+            overflow: hidden; 
+            margin: 40px 0; 
+        }
+        
+        .header { background: var(--azul); color: white; padding: 35px; display: flex; justify-content: space-between; align-items: center; }
+        .seletor-bimestre { background: #1e40af; color: white; border: 2px solid #3b82f6; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1rem; }
+
+        .secao { padding: 40px; border-bottom: 2px solid #f1f5f9; }
+        h2 { color: var(--azul); font-size: 1.3rem; border-left: 6px solid var(--azul); padding-left: 15px; margin: 0 0 25px 0; text-transform: uppercase; letter-spacing: 1.5px; }
+
+        .progresso-wrapper { display: flex; align-items: center; gap: 20px; margin-bottom: 25px; }
+        .progresso-container { flex-grow: 1; background: #e2e8f0; border-radius: 15px; height: 20px; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
+        .progresso-barra { background: linear-gradient(90deg, var(--azul), #3b82f6); height: 100%; transition: 0.8s; }
+        .valor-media { font-weight: bold; color: var(--azul); font-size: 1.5rem; }
+
+        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        td { padding: 18px 10px; border-bottom: 1px solid #e2e8f0; color: var(--texto); font-size: 1.1rem; }
+        .nota { font-weight: bold; color: var(--azul); text-align: right; font-size: 1.2rem; }
+
+        /* AJUSTE FREQUÊNCIA E COMPORTAMENTO - MODELO PRESERVADO */
+        .info-extra { display: flex; justify-content: space-around; background: #f8fafc; padding: 25px; border-radius: 15px; border: 1px solid #e2e8f0; margin-top: 10px; }
+        .info-box { text-align: center; }
+        .info-box small { 
+            display: block; 
+            color: #64748b; 
+            margin-bottom: 10px; /* Mais espaço para não "grudar" */
+            font-weight: bold; 
+            letter-spacing: 1px; 
+            font-size: 0.9rem; /* Tamanho de fonte maior para a descrição */
+        }
+        .info-val { 
+            color: var(--azul); 
+            font-size: 1.6rem; /* Tamanho harmonioso, grande mas não excessivo */
+            font-weight: bold; 
+        }
+
+        .card-calendario { background: var(--azul-claro); padding: 25px; border-radius: 15px; margin-bottom: 15px; border-left: 8px solid var(--azul); display: flex; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .data-badge { background: var(--azul); color: white; padding: 12px; border-radius: 10px; font-weight: bold; margin-right: 20px; min-width: 65px; text-align: center; font-size: 1.1rem; }
+
+        .grid-materiais { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .btn-material { background: white; border: 2px solid #e2e8f0; padding: 20px; border-radius: 12px; text-align: center; text-decoration: none; color: var(--texto); font-weight: 600; transition: 0.3s; }
+        .btn-material:hover { border-color: var(--azul); background: var(--azul-claro); transform: translateY(-2px); }
+
+        .seletor-acao { width: 100%; padding: 15px; border-radius: 10px; border: 2px solid var(--azul); margin-bottom: 20px; font-weight: bold; color: var(--azul); background: white; font-size: 1rem; cursor: pointer; }
+        textarea { width: 100%; border: 2px solid #cbd5e1; border-radius: 15px; padding: 20px; box-sizing: border-box; min-height: 150px; font-family: inherit; font-size: 1.1rem; }
+        
+        .btn-azul { background: var(--azul); color: white; border: none; padding: 22px; width: 100%; border-radius: 15px; font-weight: bold; cursor: pointer; font-size: 1.1rem; margin-top: 15px; transition: 0.3s; box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3); }
+        .btn-azul:hover { background: #1e40af; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+    <div id="toast-sucesso">✓ Enviado com sucesso! A escola entrará em contato em breve.</div>
+
+    <div id="tela-login">
+        <h2>PORTAL ESCOLAR</h2>
+        <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 30px;">Acesse com seu RU e senha cadastrados.</p>
+        <div class="input-group">
+            <label>RU do Aluno</label>
+            <input type="text" id="ru" placeholder="Ex: 1234567">
+        </div>
+        <div class="input-group">
+            <label>Senha</label>
+            <input type="password" id="senha" placeholder="Sua senha">
+        </div>
+        <button class="btn-azul" onclick="fazerLogin()">ENTRAR NO PORTAL</button>
+    </div>
+
+    <div id="portal-conteudo">
+        <div class="header">
+            <div>
+                <h1 style="margin:0; font-size: 1.5rem;">Acompanhamento Escolar</h1>
+                <span style="font-size: 1rem; opacity: 0.9;">Gabriel Silva | RU: 1234567</span>
+            </div>
+            <select class="seletor-bimestre" id="select-bimestre" onchange="mudarNotas()">
+                <option value="1">1º Bimestre</option>
+                <option value="2">2º Bimestre</option>
+                <option value="3">3º Bimestre</option>
+                <option value="4" selected>4º Bimestre</option>
+            </select>
+        </div>
+
+        <div class="secao">
+            <h2>Boletim e Desempenho</h2>
+            <div class="progresso-wrapper">
+                <div class="progresso-container"><div class="progresso-barra" id="barra-media" style="width: 94%;"></div></div>
+                <b class="valor-media" id="txt-media">9.4</b>
+            </div>
+            <table>
+                <tr><td>Língua Portuguesa</td><td class="nota" id="n1">9.5</td></tr>
+                <tr><td>Matemática</td><td class="nota" id="n2">9.0</td></tr>
+                <tr><td>Ciências da Natureza</td><td class="nota" id="n3">9.5</td></tr>
+                <tr><td>História</td><td class="nota" id="n4">8.5</td></tr>
+                <tr><td>Geografia</td><td class="nota" id="n5">9.0</td></tr>
+                <tr><td>Inglês</td><td class="nota" id="n6">10.0</td></tr>
+                <tr><td>Educação Física</td><td class="nota" id="n7">10.0</td></tr>
+                <tr><td>Artes</td><td class="nota" id="n8">9.0</td></tr>
+            </table>
+            <div class="info-extra">
+                <div class="info-box"><small>FREQUÊNCIA</small><span class="info-val" id="txt-freq">99%</span></div>
+                <div class="info-box"><small>COMPORTAMENTO</small><span class="info-val" id="txt-comp">EXCELENTE</span></div>
+            </div>
+        </div>
+
+        <div class="secao">
+            <h2>📅 Calendário e Avisos Importantes</h2>
+            <div class="card-calendario">
+                <div class="data-badge">15<br>ABR</div>
+                <div><b style="font-size:1.15rem;">Reunião Geral de Pais e Mestres</b><br><small style="font-size:1rem;">Pauta: Avaliação do desempenho pedagógico e metas para o bimestre.</small></div>
+            </div>
+            <div class="card-calendario">
+                <div class="data-badge">02<br>MAI</div>
+                <div><b style="font-size:1.15rem;">Início do Período de Rematrículas</b><br><small style="font-size:1rem;">Procure a Secretaria Acadêmica para garantir a vaga do próximo ano.</small></div>
+            </div>
+        </div>
+
+        <div class="secao">
+            <h2>📚 Material de Apoio ao Estudante</h2>
+            <div class="grid-materiais">
+                <a href="#" class="btn-material">📄 Apostila de Revisão Completa</a>
+                <a href="#" class="btn-material">🎥 Videoaula: Reforço de Matemática</a>
+                <a href="#" class="btn-material">📄 Banco de Exercícios Extras</a>
+                <a href="#" class="btn-material">🔗 Acesso à Biblioteca Virtual</a>
+            </div>
+        </div>
+
+        <div class="secao">
+            <h2>🤝 Canal de Apoio: Pais e Alunos</h2>
+            <select class="seletor-acao" id="tipo-contato" onchange="ajustarBotao()">
+                <option value="agendamento">Solicitação de Agendamento com o Diretor</option>
+                <option value="reclamacao">Registrar Reclamação</option>
+                <option value="sugestao">Registrar Sugestão</option>
+                <option value="duvida">Tirar Dúvida Pedagógica</option>
+            </select>
+            <textarea id="texto-apoio" placeholder="Digite detalhadamente sua mensagem aqui..."></textarea>
+            <button class="btn-azul" id="btn-acao" onclick="enviarSolicitacao()">SOLICITAÇÃO DE AGENDAMENTO COM O DIRETOR</button>
+        </div>
+
+        <div style="padding: 40px; text-align: center; background: #f8fafc;">
+            <button onclick="window.location.reload()" style="background:none; border:none; color:var(--azul); cursor:pointer; font-weight:bold; text-decoration: underline; font-size: 1.15rem;">SAIR</button>
+        </div>
+    </div>
+
+    <script>
+        function fazerLogin() {
+            const ru = document.getElementById('ru').value;
+            const senha = document.getElementById('senha').value;
+            if(ru === "1234567" && senha === "nota10") {
+                document.getElementById('tela-login').style.display = 'none';
+                document.getElementById('portal-conteudo').style.display = 'block';
+                window.scrollTo(0,0);
+            } else { alert("RU ou Senha incorretos!"); }
+        }
+
+        function mudarNotas() {
+            const b = document.getElementById('select-bimestre').value;
+            const db = {
+                "1": { n: [5.5, 6.0, 5.0, 6.5, 6.0, 7.0, 8.5, 6.0], med: "6.3", p: "63%", f: "70%", c: "EM OBSERVAÇÃO" },
+                "2": { n: [7.0, 6.5, 7.5, 7.0, 7.0, 8.0, 9.0, 7.0], med: "7.3", p: "73%", f: "81%", c: "REGULAR" },
+                "3": { n: [8.5, 8.0, 8.5, 8.5, 8.0, 9.0, 10.0, 8.5], med: "8.6", p: "86%", f: "94%", c: "PRÓ-ATIVO" },
+                "4": { n: [9.5, 9.0, 9.5, 8.5, 9.0, 10.0, 10.0, 9.0], med: "9.4", p: "94%", f: "99%", c: "EXCELENTE" }
+            };
+            const d = db[b];
+            for(let i=1; i<=8; i++) document.getElementById('n'+i).innerText = d.n[i-1].toFixed(1);
+            document.getElementById('txt-media').innerText = d.med;
+            document.getElementById('barra-media').style.width = d.p;
+            document.getElementById('txt-freq').innerText = d.f;
+            document.getElementById('txt-comp').innerText = d.c;
+        }
+
+        function ajustarBotao() {
+            const sel = document.getElementById('tipo-contato');
+            document.getElementById('btn-acao').innerText = sel.options[sel.selectedIndex].text.toUpperCase();
+        }
+
+        function enviarSolicitacao() {
+            if(document.getElementById('texto-apoio').value.trim() !== "") {
+                const toast = document.getElementById('toast-sucesso');
+                toast.style.display = 'block';
+                document.getElementById('texto-apoio').value = "";
+                setTimeout(() => { toast.style.display = 'none'; }, 4000);
+            }
+        }
+    </script>
+</body>
+</html>
